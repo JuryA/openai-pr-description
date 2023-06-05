@@ -98,20 +98,18 @@ def main():
     model_sample_response = os.environ.get(
         "INPUT_MODEL_SAMPLE_RESPONSE", GOOD_SAMPLE_RESPONSE
     )
+    pull_request_url = f"{github_api_url}/repos/{repo}/pulls/{pull_request_id}"
     authorization_header = {
         "Accept": "application/vnd.github.v3+json",
-        "Authorization": "token %s" % github_token,
+        "Authorization": f"token {github_token}",
     }
-
-    pull_request_url = f"{github_api_url}/repos/{repo}/pulls/{pull_request_id}"
     pull_request_result = requests.get(
         pull_request_url,
         headers=authorization_header,
     )
     if pull_request_result.status_code != requests.codes.ok:
         print(
-            "Request to get pull request data failed: "
-            + str(pull_request_result.status_code)
+            f"Request to get pull request data failed: {pull_request_result.status_code}"
         )
         return 1
     pull_request_data = json.loads(pull_request_result.text)
@@ -141,8 +139,7 @@ def main():
 
         if pull_files_result.status_code != requests.codes.ok:
             print(
-                "Request to get list of files failed with error code: "
-                + str(pull_files_result.status_code)
+                f"Request to get list of files failed with error code: {pull_files_result.status_code}"
             )
             return 1
 
@@ -199,11 +196,7 @@ The title of the pull request is "{pull_request_title}" and the following change
             generated_pr_description[0].upper() + generated_pr_description[1:]
         )
     print(f"Generated pull request description: '{generated_pr_description}'")
-    issues_url = "%s/repos/%s/issues/%s" % (
-        github_api_url,
-        repo,
-        pull_request_id,
-    )
+    issues_url = f"{github_api_url}/repos/{repo}/issues/{pull_request_id}"
     update_pr_description_result = requests.patch(
         issues_url,
         headers=authorization_header,
@@ -212,10 +205,9 @@ The title of the pull request is "{pull_request_title}" and the following change
 
     if update_pr_description_result.status_code != requests.codes.ok:
         print(
-            "Request to update pull request description failed: "
-            + str(update_pr_description_result.status_code)
+            f"Request to update pull request description failed: {update_pr_description_result.status_code}"
         )
-        print("Response: " + update_pr_description_result.text)
+        print(f"Response: {update_pr_description_result.text}")
         return 1
 
 
